@@ -1,9 +1,6 @@
 package com.nttdata.customer.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,31 +12,31 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 public class BusinessInfo {
 
-    @JsonProperty(value = "legal_name")
-    @Field(value = "legal_name")
+    @JsonProperty(value = "legalName")
+    @Field(value = "legalName")
     private String legalName;
 
-    @JsonProperty(value = "trade_name")
-    @Field(value = "trade_name")
+    @JsonProperty(value = "tradeName")
+    @Field(value = "tradeName")
     private String tradeName;
 
-    @JsonProperty(value = "incorporation_date")
-    @Field(value = "incorporation_date")
+    @JsonProperty(value = "incorporationDate")
+    @Field(value = "incorporationDate")
     private LocalDate incorporationDate;
 
     @JsonProperty(value = "website")
     @Field(value = "website")
     private String website;
 
-    @JsonProperty(value = "phone_number_main")
-    @Field(value = "phone_number_main")
+    @JsonProperty(value = "phoneNumberMain")
+    @Field(value = "phoneNumberMain")
     private String phoneNumberMain;
 
-    @JsonProperty(value = "phone_number_fax")
-    @Field(value = "phone_number_fax")
+    @JsonProperty(value = "phoneNumberFax")
+    @Field(value = "phoneNumberFax")
     private String phoneNumberFax;
 
-    @JsonProperty(value = "contact_info")
-    @Field(value = "contact_info")
+    @JsonProperty(value = "contactInfo")
+    @Field(value = "contactInfo")
     private ContactInfo contactInfo;
 }

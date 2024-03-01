@@ -3,8 +3,6 @@ package com.nttdata.customer.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nttdata.customer.model.enums.CustomerTypeEnum;
 import com.nttdata.customer.model.enums.StatusTypeEnum;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.EnumType;
@@ -39,24 +37,24 @@ public class Customer {
     @Field(value = "address")
     private Address address;
 
-    @JsonProperty(value = "identification_documents")
-    @Field(value = "identification_documents")
+    @JsonProperty(value = "identificationDocuments")
+    @Field(value = "identificationDocuments")
     private List<IdentificationDocument> identificationDocuments;
 
-    @JsonProperty(value = "personal_info")
-    @Field(value = "personal_info")
+    @JsonProperty(value = "personalInfo")
+    @Field(value = "personalInfo")
     private PersonalInfo personalInfo;
 
-    @JsonProperty(value = "business_info")
-    @Field(value = "business_info")
+    @JsonProperty(value = "businessInfo")
+    @Field(value = "businessInfo")
     private BusinessInfo businessInfo;
 
-    @JsonProperty(value = "date_created")
-    @Field(value = "date_created")
+    @JsonProperty(value = "dateCreated")
+    @Field(value = "dateCreated")
     private LocalDateTime dateCreated;
 
-    @JsonProperty(value = "last_updated")
-    @Field(value = "last_updated")
+    @JsonProperty(value = "lastUpdated")
+    @Field(value = "lastUpdated")
     private LocalDateTime lastUpdated;
 
 
