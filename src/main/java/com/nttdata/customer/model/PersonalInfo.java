@@ -12,8 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 public class PersonalInfo {
 
-    @JsonProperty(value = "full_name")
-    @Field(value = "full_name")
+    @JsonProperty(value = "fullName")
+    @Field(value = "fullName")
     private String fullName;
 
     @JsonProperty(value = "nationality")
@@ -28,12 +28,12 @@ public class PersonalInfo {
     @Field(value = "email")
     private String email;
 
-    @JsonProperty(value = "phone_number_personal")
-    @Field(value = "phone_number_personal")
+    @JsonProperty(value = "phoneNumberPersonal")
+    @Field(value = "phoneNumberPersonal")
     private String phoneNumberPersonal;
 
-    @JsonProperty(value = "phone_number_work")
-    @Field(value = "phone_number_work")
+    @JsonProperty(value = "phoneNumberWork")
+    @Field(value = "phoneNumberWork")
     private String phoneNumberWork;
 
 }
