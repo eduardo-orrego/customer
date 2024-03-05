@@ -3,13 +3,13 @@ package com.nttdata.customer.model.enums;
 import lombok.Getter;
 
 @Getter
-public enum CustomerTypeEnum {
-    PERSONAL("PERSONAL"),
-    BUSINESS("BUSINESS");
+public enum DocumentTypeEnum {
+    DNI("DNI"),
+    RUC("RUC");
 
     private String value;
 
-    CustomerTypeEnum(String value) {
+    DocumentTypeEnum(String value) {
         this.value = value;
     }
 
@@ -18,8 +18,8 @@ public enum CustomerTypeEnum {
         return String.valueOf(value);
     }
 
-    public static CustomerTypeEnum fromValue(String value) {
-        for (CustomerTypeEnum b : CustomerTypeEnum.values()) {
+    public static DocumentTypeEnum fromValue(String value) {
+        for (DocumentTypeEnum b : DocumentTypeEnum.values()) {
             if (b.value.equals(value)) {
                 return b;
             }
