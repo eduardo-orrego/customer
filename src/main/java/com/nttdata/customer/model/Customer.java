@@ -1,6 +1,7 @@
 package com.nttdata.customer.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nttdata.customer.model.enums.CustomerSubTypeEnum;
 import com.nttdata.customer.model.enums.CustomerTypeEnum;
 import com.nttdata.customer.model.enums.StatusTypeEnum;
 import java.time.LocalDateTime;
@@ -27,6 +28,11 @@ public class Customer {
     @Field(value = "type")
     @Enumerated(EnumType.STRING)
     private CustomerTypeEnum type;
+
+    @JsonProperty(value = "subType")
+    @Field(value = "subType")
+    @Enumerated(EnumType.STRING)
+    private CustomerSubTypeEnum subType;
 
     @JsonProperty(value = "status")
     @Field(value = "status")
