@@ -45,6 +45,5 @@ public class CustomerRequest {
     @JsonProperty(value = "lastUpdated")
     private LocalDateTime lastUpdated;
 
-
 }
 

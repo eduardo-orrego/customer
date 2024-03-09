@@ -49,7 +49,7 @@ public class CustomerController {
         value = "/{customerId}",
         produces = {"application/json"}
     )
-    public Mono<CustomerRequest> customersCustomerIdGet(
+    public Mono<Customer> customersCustomerIdGet(
         @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
         @PathVariable("customerId") String customerId
     ) {
@@ -77,8 +77,8 @@ public class CustomerController {
         consumes = {"application/json"}
     )
     public Mono<Customer> customersPost(
-        @Parameter(name = "Customer", description = "")
-        @Validated @RequestBody(required = false) Customer customer
+        @Parameter(name = "customer", description = "")
+        @Validated @RequestBody CustomerRequest customer
     ) {
         return customerService.saveCustomer(customer);
     }
