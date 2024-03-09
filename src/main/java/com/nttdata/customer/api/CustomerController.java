@@ -1,5 +1,6 @@
 package com.nttdata.customer.api;
 
+import com.nttdata.customer.api.request.CustomerRequest;
 import com.nttdata.customer.business.CustomerService;
 import com.nttdata.customer.model.Customer;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,7 +41,7 @@ public class CustomerController {
         summary = "Get information about a specific customer",
         responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = Customer.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerRequest.class))
             })
         }
     )
@@ -48,7 +49,7 @@ public class CustomerController {
         value = "/{customerId}",
         produces = {"application/json"}
     )
-    public Mono<Customer> customersCustomerIdGet(
+    public Mono<CustomerRequest> customersCustomerIdGet(
         @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
         @PathVariable("customerId") String customerId
     ) {
