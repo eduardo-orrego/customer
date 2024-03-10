@@ -6,10 +6,10 @@ import com.nttdata.customer.enums.DocumentTypeEnum;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class CustomerRequestValidator implements ConstraintValidator<ValidCustomerRequest, CustomerRequest> {
+public class CustomerValidator implements ConstraintValidator<ValidCustomer, CustomerRequest> {
 
     @Override
-    public void initialize(ValidCustomerRequest constraintAnnotation) {
+    public void initialize(ValidCustomer constraintAnnotation) {
     }
 
     @Override

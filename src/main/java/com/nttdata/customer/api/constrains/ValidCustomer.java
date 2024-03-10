@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = CustomerRequestValidator.class)
-public @interface ValidCustomerRequest {
+@Constraint(validatedBy = CustomerValidator.class)
+public @interface ValidCustomer {
     String message() default "";
 
     Class<?>[] groups() default {};

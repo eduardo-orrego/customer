@@ -26,7 +26,9 @@ public class IdentificationDocumentValidator implements ConstraintValidator<Vali
                         "valor DNI").addConstraintViolation();
                 return false;
             }
-        } else if (value.getType() == DocumentTypeEnum.RUC) {
+        }
+
+        if (value.getType() == DocumentTypeEnum.RUC) {
             if (value.getNumber() == null || value.getNumber().length() != 11) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
