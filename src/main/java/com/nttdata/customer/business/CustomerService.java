@@ -11,4 +11,6 @@ public interface CustomerService {
 
     Mono<Customer> updateCustomer(CustomerRequest customerRequest, String customerId);
 
+    Mono<Void> deleteCustomer(String customerId);
+
 }
