@@ -7,5 +7,8 @@ import reactor.core.publisher.Mono;
 public interface CustomerService {
     Mono<Customer> getCustomerById(String customerId);
 
-    Mono<Customer> saveCustomer(CustomerRequest customer);
+    Mono<Customer> saveCustomer(CustomerRequest customerRequest);
+
+    Mono<Customer> updateCustomer(CustomerRequest customerRequest, String customerId);
+
 }

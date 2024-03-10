@@ -10,14 +10,21 @@ import com.nttdata.customer.model.BusinessInfo;
 import com.nttdata.customer.model.Customer;
 import com.nttdata.customer.model.IdentificationDocument;
 import com.nttdata.customer.model.PersonalInfo;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+
 
 public class CustomerBuilder {
 
-    public static Customer toEntity(CustomerRequest customerRequest) {
+    CustomerBuilder() {
+    }
+
+    public static Customer toEntity(CustomerRequest customerRequest, String customerId) {
 
         return Customer.builder()
-            .id(customerRequest.getId())
+            .id(customerId)
             .type(customerRequest.getType().name())
             .status(customerRequest.getStatus().name())
             .address(Objects.nonNull(customerRequest.getAddress())
@@ -32,8 +39,8 @@ public class CustomerBuilder {
             .businessInfo(Objects.nonNull(customerRequest.getBusinessInfo())
                 ? toEntity(customerRequest.getBusinessInfo())
                 : null)
-            .dateCreated(customerRequest.getDateCreated())
-            .lastUpdated(customerRequest.getLastUpdated())
+            .dateCreated(LocalDateTime.now())
+            .lastUpdated(LocalDateTime.now())
             .build();
 
     }
@@ -61,7 +68,8 @@ public class CustomerBuilder {
             .builder()
             .subType(personalInfoRequest.getSubType().name())
             .email(personalInfoRequest.getEmail())
-            .birthdate(personalInfoRequest.getBirthdate())
+            .birthdate(LocalDate.parse(personalInfoRequest.getBirthdate(),
+                DateTimeFormatter.ofPattern("dd/MM/yyyy")))
             .fullName(personalInfoRequest.getFullName())
             .nationality(personalInfoRequest.getNationality())
             .phoneNumber(personalInfoRequest.getPhoneNumber())
@@ -74,7 +82,8 @@ public class CustomerBuilder {
             .subType(businessInfoRequest.getSubType().name())
             .legalName(businessInfoRequest.getLegalName())
             .tradeName(businessInfoRequest.getTradeName())
-            .incorporationDate(businessInfoRequest.getIncorporationDate())
+            .incorporationDate(LocalDate.parse(businessInfoRequest.getIncorporationDate(),
+                DateTimeFormatter.ofPattern("dd/MM/yyyy")))
             .website(businessInfoRequest.getWebsite())
             .fax(businessInfoRequest.getFax())
             .build();

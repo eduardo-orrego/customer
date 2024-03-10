@@ -1,8 +1,9 @@
 package com.nttdata.customer.api.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nttdata.customer.enums.PersonalSubTypeEnum;
-import java.time.LocalDate;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,22 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PersonalInfoRequest {
 
-    @JsonProperty(value= "subType")
+    @NotNull(message = "El campo 'subType' no puede ser nulo")
     private PersonalSubTypeEnum subType;
 
-    @JsonProperty(value = "fullName")
+    @NotBlank(message = "El campo 'fullName' no puede estar vacío")
     private String fullName;
 
-    @JsonProperty(value = "nationality")
     private String nationality;
 
-    @JsonProperty(value = "birthdate")
-    private LocalDate birthdate;
+    @Pattern(regexp = "^\\d{2}/\\d{2}/\\d{4}$", message = "El formato de 'incorporationDate' debe ser dd/MM/yyyy")
+    private String birthdate;
 
-    @JsonProperty(value = "email")
     private String email;
 
-    @JsonProperty(value = "phoneNumber")
     private String phoneNumber;
 
 }

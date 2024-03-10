@@ -7,5 +7,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public enum BusinessSubTypeEnum {
     NORMAL,
-    PYME;
+    MYPE;
 }

@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -81,6 +82,35 @@ public class CustomerController {
         @Validated @RequestBody CustomerRequest customer
     ) {
         return customerService.saveCustomer(customer);
+    }
+
+    /**
+     * PUT : Update a customer
+     *
+     * @param customer (optional)
+     * @return Created (status code 200)
+     */
+    @Operation(
+        operationId = "customersPut",
+        summary = "Update a customer",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Created", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = Customer.class))
+            })
+        }
+    )
+    @PutMapping(
+        value = "/{customerId}",
+        produces = {"application/json"},
+        consumes = {"application/json"}
+    )
+    public Mono<Customer> customersPut(
+        @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
+        @PathVariable("customerId") String customerId,
+        @Parameter(name = "customer", description = "")
+        @Validated @RequestBody CustomerRequest customer
+    ) {
+        return customerService.updateCustomer(customer, customerId);
     }
 
 }

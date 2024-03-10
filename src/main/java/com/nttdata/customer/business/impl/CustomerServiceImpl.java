@@ -7,7 +7,9 @@ import com.nttdata.customer.model.Customer;
 import com.nttdata.customer.repository.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -24,18 +26,26 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Mono<Customer> getCustomerById(String customerId) {
         return customerRepository.findById(customerId)
-            .switchIfEmpty(Mono.defer(() -> {
-                log.error("No data found - customerId:".concat(customerId));
-                return Mono.error(new Exception("No data found"));
-            }))
-            .doOnSuccess(customer -> log.info("Successful search - customerId:".concat(customerId)));
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found - " +
+                "customerId: ".concat(customerId))))
+            .doOnSuccess(customer -> log.info("Successful search - customerId: ".concat(customerId)));
     }
 
     @Override
-    public Mono<Customer> saveCustomer(CustomerRequest customer) {
-        return Mono.just(customer)
-            .map(CustomerBuilder::toEntity)
-            .flatMap(customerRepository::save);
+    public Mono<Customer> saveCustomer(CustomerRequest customerRequest) {
+        return Mono.just(customerRequest)
+            .map(customer -> CustomerBuilder.toEntity(customer, null))
+            .flatMap(customerRepository::save)
+            .doOnSuccess(customer -> log.info("Successful save - customerId:".concat(customer.getId())));
+
+    }
+
+    @Override
+    public Mono<Customer> updateCustomer(CustomerRequest customerRequest, String customerId) {
+        return Mono.just(customerRequest)
+            .map(customer -> CustomerBuilder.toEntity(customer, customerId))
+            .flatMap(customerRepository::save)
+            .doOnSuccess(customer -> log.info("Successful update - customerId:".concat(customer.getId())));
     }
 
 }

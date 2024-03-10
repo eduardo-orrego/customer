@@ -1,9 +1,9 @@
 package com.nttdata.customer.api.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nttdata.customer.api.constrains.ValidIdentificationDocument;
 import com.nttdata.customer.enums.DocumentTypeEnum;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,13 +11,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ValidIdentificationDocument
 public class IdentificationDocumentRequest {
 
-    @JsonProperty(value = "type")
-    @Enumerated(EnumType.STRING)
+    @NotNull(message = "El campo 'identificationDocument.type' no puede ser nulo")
     private DocumentTypeEnum type;
 
-    @JsonProperty(value = "number")
+    @NotBlank(message = "El campo 'identificationDocument.number' no puede ser vacío")
     private String number;
-
 }
