@@ -1,6 +1,5 @@
 package com.nttdata.customer.api.request;
 
-import com.nttdata.customer.api.constrains.ValidIdentificationDocument;
 import com.nttdata.customer.enums.DocumentTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ValidIdentificationDocument
 public class IdentificationDocumentRequest {
 
     @NotNull(message = "El campo 'identificationDocument.type' no puede ser nulo")
