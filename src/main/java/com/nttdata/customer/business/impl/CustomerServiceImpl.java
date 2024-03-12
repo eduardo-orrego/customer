@@ -29,8 +29,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Mono<Customer> getCustomerById(String customerId) {
         return customerRepository.findById(customerId)
-            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found - "
-                + "customerId: ".concat(customerId))))
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Customer not found - customerId: ".concat(customerId))))
             .doOnSuccess(customer -> log.info("Successful search - customerId: ".concat(customerId)));
     }
 
@@ -44,8 +44,10 @@ public class CustomerServiceImpl implements CustomerService {
                     if (Boolean.FALSE.equals(aBoolean)) {
                         return customerRepository.save(CustomerBuilder.toEntity(customerRequest, null));
                     }
-                    return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer already exists - "
-                        + "Document Number: ".concat(customerRequest.getIdentificationDocument().getNumber())));
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "There is another customer with the same Document Number: "
+                            .concat(customerRequest.getIdentificationDocument()
+                                .getNumber().toString())));
                 }))
             .doOnSuccess(customer -> log.info("Successful save - customerId: ".concat(customer.getId())));
 
@@ -56,14 +58,26 @@ public class CustomerServiceImpl implements CustomerService {
 
         return Mono.just(customerRequest)
             .flatMap(this::validateCustomerData)
-            .flatMap(customer -> customerRepository.existsById(customerId)
-                .flatMap(aBoolean -> {
-                    if (Boolean.TRUE.equals(aBoolean)) {
+            .flatMap(newCustomer -> customerRepository.findById(customerId)
+                .flatMap(currentCustomer -> {
+                    if (newCustomer.getIdentificationDocument().getNumber()
+                        .equals(currentCustomer.getIdentificationDocument().getNumber())) {
                         return customerRepository.save(CustomerBuilder.toEntity(customerRequest, customerId));
                     }
-                    return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found - "
-                        + "customerId: ".concat(customerId)));
+
+                    return customerRepository.existsByIdentificationDocumentNumber(
+                            customerRequest.getIdentificationDocument().getNumber())
+                        .flatMap(aBoolean -> {
+                            if (Boolean.FALSE.equals(aBoolean)) {
+                                return customerRepository.save(CustomerBuilder.toEntity(customerRequest, null));
+                            }
+                            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "There is another customer with the same Document Number: "
+                                    .concat(customerRequest.getIdentificationDocument().getNumber().toString())));
+                        });
                 }))
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Customer not found - customerId: ".concat(customerId))))
             .doOnSuccess(customer -> log.info("Successful update - customerId: ".concat(customerId)));
     }
 
@@ -74,8 +88,8 @@ public class CustomerServiceImpl implements CustomerService {
                 if (Boolean.TRUE.equals(aBoolean)) {
                     return customerRepository.deleteById(customerId);
                 }
-                return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found - "
-                    + "customerId: ".concat(customerId)));
+                return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Customer not found - customerId: ".concat(customerId)));
             })
             .doOnSuccess(customer -> log.info("Successful delete - customerId: ".concat(customerId)));
     }
@@ -87,21 +101,35 @@ public class CustomerServiceImpl implements CustomerService {
                 + "no puede ser nulo cuando el campo 'type' tiene valor 'PERSONAL"));
         }
 
+        if (customerRequest.getType().equals(CustomerTypeEnum.PERSONAL)
+            && !customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.DNI)) {
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo " +
+                "'identifactionDocument.type' no puede ser diferente a DNI " +
+                "cuando el campo 'type' tiene valor 'PERSONAL"));
+        }
+
         if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
             && Objects.isNull(customerRequest.getBusinessInfo())) {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'businessInfo' "
                 + "no puede ser nulo cuando el campo 'type' tiene valor 'BUSINESS"));
         }
 
+        if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
+            && !customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.RUC)) {
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo " +
+                "'identifactionDocument.type' no puede ser diferente a RUC " +
+                "cuando el campo 'type' tiene valor 'BUSINESS"));
+        }
+
         if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.DNI)
-            && customerRequest.getIdentificationDocument().getNumber().length() != 8) {
+            && customerRequest.getIdentificationDocument().getNumber().toString().length() != 8) {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'number' "
                 + "debe tener 8 dígitos cuando el campo 'identificationDocument.type' tiene valor DNI"));
         }
 
 
         if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.RUC)
-            && customerRequest.getIdentificationDocument().getNumber().length() != 11) {
+            && customerRequest.getIdentificationDocument().getNumber().toString().length() != 11) {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'number' "
                 + "debe tener 11 dígitos cuando el campo 'identificationDocument.type' tiene valor RUC"));
         }
