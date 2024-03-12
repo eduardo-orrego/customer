@@ -88,7 +88,7 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
-            && Objects.isNull(customerRequest.getPersonalInfo())) {
+            && Objects.isNull(customerRequest.getBusinessInfo())) {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'businessInfo' "
                 + "no puede ser nulo cuando el campo 'type' tiene valor 'BUSINESS"));
         }
@@ -101,9 +101,9 @@ public class CustomerServiceImpl implements CustomerService {
 
 
         if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.RUC)
-            && customerRequest.getIdentificationDocument().getNumber().length() != 12) {
+            && customerRequest.getIdentificationDocument().getNumber().length() != 11) {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'number' "
-                + "debe tener 12 dígitos cuando el campo 'identificationDocument.type' tiene valor RUC"));
+                + "debe tener 11 dígitos cuando el campo 'identificationDocument.type' tiene valor RUC"));
         }
 
         return Mono.just(customerRequest);
