@@ -4,6 +4,7 @@ import com.nttdata.customer.api.request.CustomerRequest;
 import com.nttdata.customer.builder.CustomerBuilder;
 import com.nttdata.customer.business.CustomerService;
 import com.nttdata.customer.enums.CustomerTypeEnum;
+import com.nttdata.customer.enums.DocumentTypeEnum;
 import com.nttdata.customer.model.Customer;
 import com.nttdata.customer.repository.CustomerRepository;
 import java.util.Objects;
@@ -37,8 +38,15 @@ public class CustomerServiceImpl implements CustomerService {
     public Mono<Customer> saveCustomer(CustomerRequest customerRequest) {
         return Mono.just(customerRequest)
             .flatMap(this::validateCustomerData)
-            .map(customer -> CustomerBuilder.toEntity(customer, null))
-            .flatMap(customerRepository::save)
+            .flatMap(customer -> customerRepository.existsByIdentificationDocumentNumber(
+                    customerRequest.getIdentificationDocument().getNumber())
+                .flatMap(aBoolean -> {
+                    if (Boolean.FALSE.equals(aBoolean)) {
+                        return customerRepository.save(CustomerBuilder.toEntity(customerRequest, null));
+                    }
+                    return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer already exists - "
+                        + "Document Number: ".concat(customerRequest.getIdentificationDocument().getNumber())));
+                }))
             .doOnSuccess(customer -> log.info("Successful save - customerId: ".concat(customer.getId())));
 
     }
@@ -83,6 +91,19 @@ public class CustomerServiceImpl implements CustomerService {
             && Objects.isNull(customerRequest.getPersonalInfo())) {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'businessInfo' "
                 + "no puede ser nulo cuando el campo 'type' tiene valor 'BUSINESS"));
+        }
+
+        if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.DNI)
+            && customerRequest.getIdentificationDocument().getNumber().length() != 8) {
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'number' "
+                + "debe tener 8 dígitos cuando el campo 'identificationDocument.type' tiene valor DNI"));
+        }
+
+
+        if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.RUC)
+            && customerRequest.getIdentificationDocument().getNumber().length() != 12) {
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'number' "
+                + "debe tener 12 dígitos cuando el campo 'identificationDocument.type' tiene valor RUC"));
         }
 
         return Mono.just(customerRequest);
