@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = IdentificationDocumentValidator.class)
 @Documented
 public @interface ValidIdentificationDocument {
-    String message() default "";
+    String message() default "Se detectaron errores en los datos de entrada";
 
     Class<?>[] groups() default {};
 

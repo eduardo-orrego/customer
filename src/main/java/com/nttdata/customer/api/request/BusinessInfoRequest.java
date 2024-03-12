@@ -3,7 +3,7 @@ package com.nttdata.customer.api.request;
 import com.nttdata.customer.enums.BusinessSubTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,8 +21,7 @@ public class BusinessInfoRequest {
 
     private String tradeName;
 
-    @Pattern(regexp = "^\\d{2}/\\d{2}/\\d{4}$", message = "El formato de 'incorporationDate' debe ser dd/MM/yyyy")
-    private String incorporationDate;
+    private LocalDate incorporationDate;
 
     private String website;
 

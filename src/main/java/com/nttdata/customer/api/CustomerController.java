@@ -33,32 +33,6 @@ public class CustomerController {
     }
 
     /**
-     * GET /{customerId} : Get information about a specific customer
-     *
-     * @param customerId (required)
-     * @return OK (status code 200)
-     */
-    @Operation(
-        operationId = "customersCustomerIdGet",
-        summary = "Get information about a specific customer",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "OK", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerRequest.class))
-            })
-        }
-    )
-    @GetMapping(
-        value = "/{customerId}",
-        produces = {"application/json"}
-    )
-    public Mono<Customer> customersCustomerIdGet(
-        @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
-        @PathVariable("customerId") String customerId
-    ) {
-        return customerService.getCustomerById(customerId);
-    }
-
-    /**
      * POST : Create a new customer
      *
      * @param customer (required)
@@ -79,7 +53,6 @@ public class CustomerController {
         consumes = {"application/json"}
     )
     public Mono<Customer> customersPost(
-        @Parameter(name = "customer", description = "")
         @Validated @RequestBody CustomerRequest customer
     ) {
         return customerService.saveCustomer(customer);
@@ -109,10 +82,36 @@ public class CustomerController {
     public Mono<Customer> customersPut(
         @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
         @PathVariable("customerId") String customerId,
-        @Parameter(name = "customer", description = "")
         @Validated @RequestBody CustomerRequest customer
     ) {
         return customerService.updateCustomer(customer, customerId);
+    }
+
+    /**
+     * GET /{customerId} : Get information about a specific customer
+     *
+     * @param customerId (required)
+     * @return OK (status code 200)
+     */
+    @Operation(
+        operationId = "customersCustomerIdGet",
+        summary = "Get information about a specific customer",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "OK", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerRequest.class))
+            })
+        }
+    )
+
+    @GetMapping(
+        value = "/{customerId}",
+        produces = {"application/json"}
+    )
+    public Mono<Customer> customersCustomerIdGet(
+        @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
+        @PathVariable("customerId") String customerId
+    ) {
+        return customerService.getCustomerById(customerId);
     }
 
     /**
@@ -122,14 +121,14 @@ public class CustomerController {
      * @return Created (status code 200)
      */
     @Operation(
-        operationId = "customersDelete",
+        operationId = "customerDelete",
         summary = "Delete a customer",
         responses = {
             @ApiResponse(responseCode = "200", description = "Deleted")
         }
     )
     @DeleteMapping(value = "/{customerId}")
-    public Mono<Void> customersPut(
+    public Mono<Void> customerDelete(
         @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
         @PathVariable("customerId") String customerId
     ) {

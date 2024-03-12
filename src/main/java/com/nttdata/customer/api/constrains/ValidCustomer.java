@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = CustomerValidator.class)
 public @interface ValidCustomer {
-    String message() default "";
+    String message() default "Se detectaron errores en los datos de entrada";
 
     Class<?>[] groups() default {};
 

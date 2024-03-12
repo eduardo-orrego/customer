@@ -10,9 +10,7 @@ import com.nttdata.customer.model.BusinessInfo;
 import com.nttdata.customer.model.Customer;
 import com.nttdata.customer.model.IdentificationDocument;
 import com.nttdata.customer.model.PersonalInfo;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 
@@ -68,8 +66,7 @@ public class CustomerBuilder {
             .builder()
             .subType(personalInfoRequest.getSubType().name())
             .email(personalInfoRequest.getEmail())
-            .birthdate(LocalDate.parse(personalInfoRequest.getBirthdate(),
-                DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+            .birthdate(personalInfoRequest.getBirthdate())
             .fullName(personalInfoRequest.getFullName())
             .nationality(personalInfoRequest.getNationality())
             .phoneNumber(personalInfoRequest.getPhoneNumber())
@@ -82,8 +79,7 @@ public class CustomerBuilder {
             .subType(businessInfoRequest.getSubType().name())
             .legalName(businessInfoRequest.getLegalName())
             .tradeName(businessInfoRequest.getTradeName())
-            .incorporationDate(LocalDate.parse(businessInfoRequest.getIncorporationDate(),
-                DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+            .incorporationDate(businessInfoRequest.getIncorporationDate())
             .website(businessInfoRequest.getWebsite())
             .fax(businessInfoRequest.getFax())
             .build();
