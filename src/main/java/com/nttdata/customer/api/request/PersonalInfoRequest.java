@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PersonalInfoRequest {
 
-    @NotNull(message = "El campo 'subType' no puede ser nulo")
+    @NotNull(message = "El campo 'personalInfo.subType' no puede ser nulo")
     private PersonalSubTypeEnum subType;
 
-    @NotBlank(message = "El campo 'fullName' no puede estar vacío")
+    @NotBlank(message = "El campo 'personalInfo.fullName' no puede estar vacío")
     private String fullName;
 
     private String nationality;

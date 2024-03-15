@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BusinessInfoRequest {
 
-    @NotNull(message = "El campo 'subType' no puede ser nulo")
+    @NotNull(message = "El campo 'businessInfo.subType' no puede ser nulo")
     private BusinessSubTypeEnum subType;
 
-    @NotBlank(message = "El campo 'legalName' no puede estar vacío")
+    @NotBlank(message = "El campo 'businessInfo.legalName' no puede estar vacío")
     private String legalName;
 
     private String tradeName;

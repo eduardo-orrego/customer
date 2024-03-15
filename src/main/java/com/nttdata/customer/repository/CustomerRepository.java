@@ -2,12 +2,16 @@ package com.nttdata.customer.repository;
 
 import com.nttdata.customer.model.Customer;
 import java.math.BigInteger;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
-@Repository
-public interface CustomerRepository extends ReactiveMongoRepository<Customer, String> {
-    Mono<Boolean> existsByIdentificationDocumentNumber(BigInteger documentNumber);
+public interface CustomerRepository {
+    Mono<Customer> findCustomer(String customerId);
 
+    Mono<Boolean> findExistsCustomer(BigInteger documentNumber);
+
+    Mono<Boolean> findExistsCustomer(String customerId);
+
+    Mono<Customer> saveCustomer(Customer customer);
+
+    Mono<Void> deleteCustomer(String customerId);
 }
