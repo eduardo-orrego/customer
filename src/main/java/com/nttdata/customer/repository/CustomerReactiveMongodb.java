@@ -10,4 +10,5 @@ import reactor.core.publisher.Mono;
 public interface CustomerReactiveMongodb extends ReactiveMongoRepository<Customer, String> {
     Mono<Boolean> existsByIdentificationDocumentNumber(BigInteger documentNumber);
 
+    Mono<Customer> findByIdentificationDocumentNumber(BigInteger documentNumber);
 }

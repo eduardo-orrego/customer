@@ -21,6 +21,13 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
+    public Mono<Customer> findCustomer(BigInteger documentNumber) {
+        return customerReactiveMongodb.findByIdentificationDocumentNumber(documentNumber)
+            .doOnSuccess(result -> log.info("Successful find - documentNumber: ".concat(documentNumber.toString())));
+
+    }
+
+    @Override
     public Mono<Boolean> findExistsCustomer(BigInteger documentNumber) {
         return customerReactiveMongodb.existsByIdentificationDocumentNumber(documentNumber)
             .doOnSuccess(

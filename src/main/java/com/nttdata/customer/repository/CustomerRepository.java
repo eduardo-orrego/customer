@@ -7,6 +7,8 @@ import reactor.core.publisher.Mono;
 public interface CustomerRepository {
     Mono<Customer> findCustomer(String customerId);
 
+    Mono<Customer> findCustomer(BigInteger documentNumber);
+
     Mono<Boolean> findExistsCustomer(BigInteger documentNumber);
 
     Mono<Boolean> findExistsCustomer(String customerId);

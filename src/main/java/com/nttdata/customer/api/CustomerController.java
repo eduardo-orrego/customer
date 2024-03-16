@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -112,6 +114,33 @@ public class CustomerController {
         @PathVariable("customerId") String customerId
     ) {
         return customerService.getCustomerById(customerId);
+    }
+
+    /**
+     * GET /{documentNumber} : Get information about a specific customer
+     *
+     * @param documentNumber (required)
+     * @return OK (status code 200)
+     */
+    @Operation(
+        operationId = "customerGet",
+        summary = "Get information about a specific customer",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "OK", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerRequest.class))
+            })
+        }
+    )
+
+    @GetMapping(
+        value = "",
+        produces = {"application/json"}
+    )
+    public Mono<Customer> customerGet(
+        @NotNull @Parameter(name = "documentNumber", description = "", required = true, in = ParameterIn.QUERY)
+        @Validated @RequestParam(value = "documentNumber") String documentNumber
+    ) {
+        return customerService.getCustomer(documentNumber);
     }
 
     /**

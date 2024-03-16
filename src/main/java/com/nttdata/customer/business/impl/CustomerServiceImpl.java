@@ -30,45 +30,42 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public Mono<Customer> getCustomer(String documentNumber) {
+        return customerRepository.findCustomer(documentNumber)
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Customer not found - documentNumber: ".concat(documentNumber))));
+    }
+
+    @Override
     public Mono<Customer> saveCustomer(CustomerRequest customerRequest) {
-        return Mono.just(customerRequest)
-            .flatMap(this::validateCustomerData)
-            .flatMap(customer ->
-                customerRepository.findExistsCustomer(customerRequest.getIdentificationDocument().getNumber())
-                    .flatMap(aBoolean -> {
-                        if (Boolean.FALSE.equals(aBoolean)) {
-                            return customerRepository.saveCustomer(CustomerBuilder.toEntity(customerRequest, null));
-                        }
-                        return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "There is another customer with the same Document Number: "
-                                .concat(customerRequest.getIdentificationDocument().getNumber().toString())));
-                    }));
+
+        return customerRepository.findExistsCustomer(customerRequest.getIdentificationDocument().getNumber())
+            .flatMap(aBoolean -> {
+                if (Boolean.FALSE.equals(aBoolean)) {
+                    return this.validateCustomerData(customerRequest)
+                        .flatMap(customerValidated ->
+                            customerRepository.saveCustomer(CustomerBuilder.toEntity(customerValidated, null)));
+                }
+                return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "There is another customer with the same Document Number: "
+                        .concat(customerRequest.getIdentificationDocument().getNumber().toString())));
+            });
 
     }
 
     @Override
     public Mono<Customer> updateCustomer(CustomerRequest customerRequest, String customerId) {
 
-        return Mono.just(customerRequest)
-            .flatMap(this::validateCustomerData)
-            .flatMap(newCustomer -> this.getCustomerById(customerId)
-                .flatMap(currentCustomer -> {
-                    if (newCustomer.getIdentificationDocument().getNumber()
-                        .equals(currentCustomer.getIdentificationDocument().getNumber())) {
-                        return customerRepository.saveCustomer(CustomerBuilder.toEntity(customerRequest, customerId));
-                    }
+        return this.getCustomerById(customerId)
+            .flatMap(currentCustomer -> {
+                if (customerRequest.getIdentificationDocument().getNumber()
+                    .compareTo(currentCustomer.getIdentificationDocument().getNumber()) == 0) {
+                    return customerRepository.saveCustomer(CustomerBuilder.toEntity(customerRequest,
+                        customerId));
+                }
 
-                    return customerRepository.findExistsCustomer(
-                            customerRequest.getIdentificationDocument().getNumber())
-                        .flatMap(aBoolean -> {
-                            if (Boolean.FALSE.equals(aBoolean)) {
-                                return customerRepository.saveCustomer(CustomerBuilder.toEntity(customerRequest, null));
-                            }
-                            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "There is another customer with the same Document Number: "
-                                    .concat(customerRequest.getIdentificationDocument().getNumber().toString())));
-                        });
-                }));
+                return this.saveCustomer(customerRequest);
+            });
 
     }
 
@@ -87,15 +84,15 @@ public class CustomerServiceImpl implements CustomerService {
     private Mono<CustomerRequest> validateCustomerData(CustomerRequest customerRequest) {
         if (customerRequest.getType().equals(CustomerTypeEnum.PERSONAL)
             && Objects.isNull(customerRequest.getPersonalInfo())) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'personalInfo' "
-                + "no puede ser nulo cuando el campo 'type' tiene valor 'PERSONAL"));
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "El campo 'personalInfo' " + "no puede ser nulo cuando el campo 'type' tiene valor 'PERSONAL"));
         }
 
         if (customerRequest.getType().equals(CustomerTypeEnum.PERSONAL)
             && !customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.DNI)) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo " +
-                "'identifactionDocument.type' no puede ser diferente a DNI " +
-                "cuando el campo 'type' tiene valor 'PERSONAL"));
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "El campo " + "'identifactionDocument.type' no puede ser diferente a DNI "
+                    + "cuando el campo 'type' tiene valor 'PERSONAL"));
         }
 
         if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
@@ -106,9 +103,9 @@ public class CustomerServiceImpl implements CustomerService {
 
         if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
             && !customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.RUC)) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo " +
-                "'identifactionDocument.type' no puede ser diferente a RUC " +
-                "cuando el campo 'type' tiene valor 'BUSINESS"));
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo "
+                + "'identifactionDocument.type' no puede ser diferente a RUC "
+                + "cuando el campo 'type' tiene valor 'BUSINESS"));
         }
 
         if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.DNI)
