@@ -38,7 +38,7 @@ public class CustomerServiceImpl implements CustomerService {
                 if (Boolean.FALSE.equals(aBoolean)) {
                     return this.validateCustomerData(customerRequest)
                         .flatMap(customerValidated ->
-                            customerRepository.saveCustomer(CustomerBuilder.toEntity(customerValidated, null)));
+                            customerRepository.saveCustomer(CustomerBuilder.toEntity(customerValidated)));
                 }
                 return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "There is another customer with the same Document Number: "
@@ -55,7 +55,7 @@ public class CustomerServiceImpl implements CustomerService {
                 if (customerRequest.getIdentificationDocument().getNumber()
                     .compareTo(currentCustomer.getIdentificationDocument().getNumber()) == 0) {
                     return customerRepository.saveCustomer(CustomerBuilder.toEntity(customerRequest,
-                        customerId));
+                        currentCustomer));
                 }
 
                 return this.saveCustomer(customerRequest);

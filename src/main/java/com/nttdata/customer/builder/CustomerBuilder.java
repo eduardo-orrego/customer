@@ -19,17 +19,14 @@ public class CustomerBuilder {
     CustomerBuilder() {
     }
 
-    public static Customer toEntity(CustomerRequest customerRequest, String customerId) {
+    public static Customer toEntity(CustomerRequest customerRequest) {
 
         return Customer.builder()
-            .id(customerId)
             .type(customerRequest.getType().name())
             .status(customerRequest.getStatus().name())
+            .identificationDocument(toEntity(customerRequest.getIdentificationDocument()))
             .address(Objects.nonNull(customerRequest.getAddress())
                 ? toEntity(customerRequest.getAddress())
-                : null)
-            .identificationDocument(Objects.nonNull(customerRequest.getIdentificationDocument())
-                ? toEntity(customerRequest.getIdentificationDocument())
                 : null)
             .personalInfo(Objects.nonNull(customerRequest.getPersonalInfo())
                 ? toEntity(customerRequest.getPersonalInfo())
@@ -38,6 +35,28 @@ public class CustomerBuilder {
                 ? toEntity(customerRequest.getBusinessInfo())
                 : null)
             .dateCreated(LocalDateTime.now())
+            .lastUpdated(LocalDateTime.now())
+            .build();
+
+    }
+
+    public static Customer toEntity(CustomerRequest customerRequest, Customer customer) {
+
+        return Customer.builder()
+            .id(customer.getId())
+            .type(customerRequest.getType().name())
+            .status(customerRequest.getStatus().name())
+            .identificationDocument(toEntity(customerRequest.getIdentificationDocument()))
+            .address(Objects.nonNull(customerRequest.getAddress())
+                ? toEntity(customerRequest.getAddress())
+                : customer.getAddress())
+            .personalInfo(Objects.nonNull(customerRequest.getPersonalInfo())
+                ? toEntity(customerRequest.getPersonalInfo())
+                : customer.getPersonalInfo())
+            .businessInfo(Objects.nonNull(customerRequest.getBusinessInfo())
+                ? toEntity(customerRequest.getBusinessInfo())
+                : customer.getBusinessInfo())
+            .dateCreated(customer.getDateCreated())
             .lastUpdated(LocalDateTime.now())
             .build();
 
