@@ -7,6 +7,7 @@ import com.nttdata.customer.enums.CustomerTypeEnum;
 import com.nttdata.customer.enums.DocumentTypeEnum;
 import com.nttdata.customer.model.Customer;
 import com.nttdata.customer.repository.CustomerRepository;
+import java.math.BigInteger;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +24,10 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
 
     @Override
-    public Mono<Customer> getCustomerById(String customerId) {
-        return customerRepository.findCustomer(customerId)
-            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Customer not found - customerId: ".concat(customerId))));
-    }
-
-    @Override
-    public Mono<Customer> getCustomer(String documentNumber) {
+    public Mono<Customer> getCustomer(BigInteger documentNumber) {
         return customerRepository.findCustomer(documentNumber)
-            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Customer not found - documentNumber: ".concat(documentNumber))));
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Customer not found - documentNumber: ".concat(documentNumber.toString())))));
     }
 
     @Override
@@ -56,7 +50,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Mono<Customer> updateCustomer(CustomerRequest customerRequest, String customerId) {
 
-        return this.getCustomerById(customerId)
+        return customerRepository.findCustomer(customerId)
             .flatMap(currentCustomer -> {
                 if (customerRequest.getIdentificationDocument().getNumber()
                     .compareTo(currentCustomer.getIdentificationDocument().getNumber()) == 0) {
@@ -65,7 +59,9 @@ public class CustomerServiceImpl implements CustomerService {
                 }
 
                 return this.saveCustomer(customerRequest);
-            });
+            })
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Customer not found - customerId: ".concat(customerId)))));
 
     }
 

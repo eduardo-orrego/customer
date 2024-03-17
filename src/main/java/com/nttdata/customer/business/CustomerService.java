@@ -2,12 +2,12 @@ package com.nttdata.customer.business;
 
 import com.nttdata.customer.api.request.CustomerRequest;
 import com.nttdata.customer.model.Customer;
+import java.math.BigInteger;
 import reactor.core.publisher.Mono;
 
 public interface CustomerService {
-    Mono<Customer> getCustomerById(String customerId);
 
-    Mono<Customer> getCustomer(String documentNumber);
+    Mono<Customer> getCustomer(BigInteger documentNumber);
 
     Mono<Customer> saveCustomer(CustomerRequest customerRequest);
 

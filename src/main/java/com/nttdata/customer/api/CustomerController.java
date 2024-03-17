@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -90,34 +91,7 @@ public class CustomerController {
     }
 
     /**
-     * GET /{customerId} : Get information about a specific customer
-     *
-     * @param customerId (required)
-     * @return OK (status code 200)
-     */
-    @Operation(
-        operationId = "customersCustomerIdGet",
-        summary = "Get information about a specific customer",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "OK", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerRequest.class))
-            })
-        }
-    )
-
-    @GetMapping(
-        value = "/{customerId}",
-        produces = {"application/json"}
-    )
-    public Mono<Customer> customersCustomerIdGet(
-        @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
-        @PathVariable("customerId") String customerId
-    ) {
-        return customerService.getCustomerById(customerId);
-    }
-
-    /**
-     * GET /{documentNumber} : Get information about a specific customer
+     * GET  : Get information about a specific customer
      *
      * @param documentNumber (required)
      * @return OK (status code 200)
@@ -138,7 +112,7 @@ public class CustomerController {
     )
     public Mono<Customer> customerGet(
         @NotNull @Parameter(name = "documentNumber", description = "", required = true, in = ParameterIn.QUERY)
-        @Validated @RequestParam(value = "documentNumber") String documentNumber
+        @Validated @RequestParam(value = "documentNumber") BigInteger documentNumber
     ) {
         return customerService.getCustomer(documentNumber);
     }
