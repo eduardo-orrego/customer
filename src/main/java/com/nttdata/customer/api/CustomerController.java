@@ -67,8 +67,8 @@ public class CustomerController {
   )
   @ResponseStatus(HttpStatus.OK)
   public Mono<Customer> customerGet(
-    @NotNull @Parameter(name = "documentNumber", description = "", required = true, in =
-      ParameterIn.QUERY)
+    @NotNull @Parameter(name = "documentNumber", description = "", required = true,
+      in = ParameterIn.QUERY)
     @Validated @RequestParam(value = "documentNumber") BigInteger documentNumber
   ) {
     return customerService.getCustomer(documentNumber);
