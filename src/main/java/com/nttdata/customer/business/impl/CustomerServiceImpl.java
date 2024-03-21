@@ -7,6 +7,7 @@ import com.nttdata.customer.enums.CustomerTypeEnum;
 import com.nttdata.customer.enums.DocumentTypeEnum;
 import com.nttdata.customer.model.Customer;
 import com.nttdata.customer.repository.CustomerRepository;
+import java.math.BigInteger;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,126 +16,123 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
+/**
+ * Class: CustomerServiceImpl. <br/>
+ * <b>Bootcamp NTTDATA</b><br/>
+ *
+ * @author NTTDATA
+ * @version 1.0
+ *   <u>Developed by</u>:
+ *   <ul>
+ *   <li>Developer Carlos</li>
+ *   </ul>
+ * @since 1.0
+ */
 @Slf4j
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
-    private final CustomerRepository customerRepository;
+  @Autowired
+  private CustomerRepository customerRepository;
 
-    @Autowired
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
-    }
+  @Override
+  public Mono<Customer> getCustomer(BigInteger documentNumber) {
+    return customerRepository.findCustomer(documentNumber)
+      .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+        "Customer not found - documentNumber: ".concat(documentNumber.toString())))));
+  }
 
-    @Override
-    public Mono<Customer> getCustomerById(String customerId) {
-        return customerRepository.findById(customerId)
-            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Customer not found - customerId: ".concat(customerId))))
-            .doOnSuccess(customer -> log.info("Successful search - customerId: ".concat(customerId)));
-    }
+  @Override
+  public Mono<Customer> saveCustomer(CustomerRequest customerRequest) {
 
-    @Override
-    public Mono<Customer> saveCustomer(CustomerRequest customerRequest) {
-        return Mono.just(customerRequest)
-            .flatMap(this::validateCustomerData)
-            .flatMap(customer -> customerRepository.existsByIdentificationDocumentNumber(
-                    customerRequest.getIdentificationDocument().getNumber())
-                .flatMap(aBoolean -> {
-                    if (Boolean.FALSE.equals(aBoolean)) {
-                        return customerRepository.save(CustomerBuilder.toEntity(customerRequest, null));
-                    }
-                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "There is another customer with the same Document Number: "
-                            .concat(customerRequest.getIdentificationDocument()
-                                .getNumber().toString())));
-                }))
-            .doOnSuccess(customer -> log.info("Successful save - customerId: ".concat(customer.getId())));
+    return customerRepository.findExistsCustomer(
+        customerRequest.getIdentificationDocument().getNumber())
+      .flatMap(aBoolean -> {
+        if (Boolean.FALSE.equals(aBoolean)) {
+          return this.validateCustomerData(customerRequest)
+            .flatMap(customerValidated ->
+              customerRepository.saveCustomer(CustomerBuilder.toEntity(customerValidated)));
+        }
+        return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "There is another customer with the same IdentificationDocument Number: "
+            .concat(customerRequest.getIdentificationDocument().getNumber().toString())));
+      });
 
-    }
+  }
 
-    @Override
-    public Mono<Customer> updateCustomer(CustomerRequest customerRequest, String customerId) {
+  @Override
+  public Mono<Customer> updateCustomer(CustomerRequest customerRequest, String customerId) {
 
-        return Mono.just(customerRequest)
-            .flatMap(this::validateCustomerData)
-            .flatMap(newCustomer -> customerRepository.findById(customerId)
-                .flatMap(currentCustomer -> {
-                    if (newCustomer.getIdentificationDocument().getNumber()
-                        .equals(currentCustomer.getIdentificationDocument().getNumber())) {
-                        return customerRepository.save(CustomerBuilder.toEntity(customerRequest, customerId));
-                    }
-
-                    return customerRepository.existsByIdentificationDocumentNumber(
-                            customerRequest.getIdentificationDocument().getNumber())
-                        .flatMap(aBoolean -> {
-                            if (Boolean.FALSE.equals(aBoolean)) {
-                                return customerRepository.save(CustomerBuilder.toEntity(customerRequest, null));
-                            }
-                            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "There is another customer with the same Document Number: "
-                                    .concat(customerRequest.getIdentificationDocument().getNumber().toString())));
-                        });
-                }))
-            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Customer not found - customerId: ".concat(customerId))))
-            .doOnSuccess(customer -> log.info("Successful update - customerId: ".concat(customerId)));
-    }
-
-    @Override
-    public Mono<Void> deleteCustomer(String customerId) {
-        return customerRepository.existsById(customerId)
-            .flatMap(aBoolean -> {
-                if (Boolean.TRUE.equals(aBoolean)) {
-                    return customerRepository.deleteById(customerId);
-                }
-                return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Customer not found - customerId: ".concat(customerId)));
-            })
-            .doOnSuccess(customer -> log.info("Successful delete - customerId: ".concat(customerId)));
-    }
-
-    private Mono<CustomerRequest> validateCustomerData(CustomerRequest customerRequest) {
-        if (customerRequest.getType().equals(CustomerTypeEnum.PERSONAL)
-            && Objects.isNull(customerRequest.getPersonalInfo())) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'personalInfo' "
-                + "no puede ser nulo cuando el campo 'type' tiene valor 'PERSONAL"));
+    return customerRepository.findCustomer(customerId)
+      .flatMap(currentCustomer -> {
+        if (customerRequest.getIdentificationDocument().getNumber()
+          .compareTo(currentCustomer.getIdentificationDocument().getNumber()) == 0) {
+          return customerRepository.saveCustomer(CustomerBuilder.toEntity(customerRequest,
+            currentCustomer));
         }
 
-        if (customerRequest.getType().equals(CustomerTypeEnum.PERSONAL)
-            && !customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.DNI)) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo " +
-                "'identifactionDocument.type' no puede ser diferente a DNI " +
-                "cuando el campo 'type' tiene valor 'PERSONAL"));
+        return this.saveCustomer(customerRequest);
+      })
+      .switchIfEmpty(Mono.defer(() -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+        "Customer not found - customerId: ".concat(customerId)))));
+
+  }
+
+  @Override
+  public Mono<Void> deleteCustomer(String customerId) {
+    return customerRepository.findExistsCustomer(customerId)
+      .flatMap(aBoolean -> {
+        if (Boolean.TRUE.equals(aBoolean)) {
+          return customerRepository.deleteCustomer(customerId);
         }
+        return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND,
+          "Customer not found - customerId: ".concat(customerId)));
+      });
+  }
 
-        if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
-            && Objects.isNull(customerRequest.getBusinessInfo())) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'businessInfo' "
-                + "no puede ser nulo cuando el campo 'type' tiene valor 'BUSINESS"));
-        }
+  private Mono<CustomerRequest> validateCustomerData(CustomerRequest customerRequest) {
 
-        if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
-            && !customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.RUC)) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo " +
-                "'identifactionDocument.type' no puede ser diferente a RUC " +
-                "cuando el campo 'type' tiene valor 'BUSINESS"));
-        }
-
-        if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.DNI)
-            && customerRequest.getIdentificationDocument().getNumber().toString().length() != 8) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'number' "
-                + "debe tener 8 dígitos cuando el campo 'identificationDocument.type' tiene valor DNI"));
-        }
-
-
-        if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.RUC)
-            && customerRequest.getIdentificationDocument().getNumber().toString().length() != 11) {
-            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'number' "
-                + "debe tener 11 dígitos cuando el campo 'identificationDocument.type' tiene valor RUC"));
-        }
-
-        return Mono.just(customerRequest);
+    if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
+      && Objects.isNull(customerRequest.getBusinessInfo())) {
+      return Mono.error(
+        new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'businessInfo' "
+          + "no puede ser nulo cuando el campo 'type' tiene valor 'BUSINESS"));
     }
+
+    if (customerRequest.getType().equals(CustomerTypeEnum.PERSONAL)
+      && Objects.isNull(customerRequest.getPersonalInfo())) {
+      return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+        "El campo 'personalInfo' " + "no puede ser nulo cuando el campo 'type' tiene valor 'PERSONAL"));
+    }
+
+    if (customerRequest.getType().equals(CustomerTypeEnum.PERSONAL)
+      && !customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.DNI)) {
+      return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+        "El campo " + "'identifactionDocument.type' no puede ser diferente a DNI "
+          + "cuando el campo 'type' tiene valor 'PERSONAL"));
+    }
+
+    if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
+      && !customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.RUC)) {
+      return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo "
+        + "'identifactionDocument.type' no puede ser diferente a RUC "
+        + "cuando el campo 'type' tiene valor 'BUSINESS"));
+    }
+
+    if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.DNI)
+      && customerRequest.getIdentificationDocument().getNumber().toString().length() != 8) {
+      return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'number' "
+        + "debe tener 8 dígitos cuando el campo 'document.type' tiene valor DNI"));
+    }
+
+
+    if (customerRequest.getIdentificationDocument().getType().equals(DocumentTypeEnum.RUC)
+      && customerRequest.getIdentificationDocument().getNumber().toString().length() != 11) {
+      return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'number' "
+        + "debe tener 11 dígitos cuando el campo 'document.type' tiene valor RUC"));
+    }
+
+    return Mono.just(customerRequest);
+  }
 }
 

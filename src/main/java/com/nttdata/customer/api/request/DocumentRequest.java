@@ -1,5 +1,8 @@
 package com.nttdata.customer.api.request;
 
+import com.nttdata.customer.enums.DocumentTypeEnum;
+import jakarta.validation.constraints.NotNull;
+import java.math.BigInteger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Class: AddressRequest. <br/>
+ * Class: DocumentRequest. <br/>
  * <b>Bootcamp NTTDATA</b><br/>
  *
  * @author NTTDATA
@@ -23,14 +26,11 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddressRequest {
+public class DocumentRequest {
 
-  private String street;
+  @NotNull(message = "El campo 'document.type' no puede ser nulo")
+  private DocumentTypeEnum type;
 
-  private String city;
-
-  private String country;
-
-  private String postalCode;
-
+  @NotNull(message = "El campo 'document.number' no puede ser nulo")
+  private BigInteger number;
 }
