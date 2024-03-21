@@ -91,6 +91,14 @@ public class CustomerServiceImpl implements CustomerService {
   }
 
   private Mono<CustomerRequest> validateCustomerData(CustomerRequest customerRequest) {
+
+    if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
+      && Objects.isNull(customerRequest.getBusinessInfo())) {
+      return Mono.error(
+        new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'businessInfo' "
+          + "no puede ser nulo cuando el campo 'type' tiene valor 'BUSINESS"));
+    }
+
     if (customerRequest.getType().equals(CustomerTypeEnum.PERSONAL)
       && Objects.isNull(customerRequest.getPersonalInfo())) {
       return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -102,13 +110,6 @@ public class CustomerServiceImpl implements CustomerService {
       return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
         "El campo " + "'identifactionDocument.type' no puede ser diferente a DNI "
           + "cuando el campo 'type' tiene valor 'PERSONAL"));
-    }
-
-    if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
-      && Objects.isNull(customerRequest.getBusinessInfo())) {
-      return Mono.error(
-        new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'businessInfo' "
-          + "no puede ser nulo cuando el campo 'type' tiene valor 'BUSINESS"));
     }
 
     if (customerRequest.getType().equals(CustomerTypeEnum.BUSINESS)
