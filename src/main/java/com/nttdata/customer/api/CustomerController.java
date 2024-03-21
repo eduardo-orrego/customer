@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigInteger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -63,6 +65,7 @@ public class CustomerController {
     value = "",
     produces = {"application/json"}
   )
+  @ResponseStatus(HttpStatus.OK)
   public Mono<Customer> customerGet(
     @NotNull @Parameter(name = "documentNumber", description = "", required = true, in =
       ParameterIn.QUERY)
@@ -91,6 +94,7 @@ public class CustomerController {
     value = "",
     produces = {"application/json"},
     consumes = {"application/json"})
+  @ResponseStatus(HttpStatus.CREATED)
   public Mono<Customer> customersPost(
     @Validated @RequestBody CustomerRequest customer
   ) {
@@ -117,6 +121,7 @@ public class CustomerController {
     value = "/{customerId}",
     produces = {"application/json"},
     consumes = {"application/json"})
+  @ResponseStatus(HttpStatus.OK)
   public Mono<Customer> customersPut(
     @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
     @PathVariable("customerId") String customerId,
@@ -141,6 +146,7 @@ public class CustomerController {
   @DeleteMapping(
     value = "/{customerId}"
   )
+  @ResponseStatus(HttpStatus.OK)
   public Mono<Void> customerDelete(
     @Parameter(name = "customerId", description = "", required = true, in = ParameterIn.PATH)
     @PathVariable("customerId") String customerId
